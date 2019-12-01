@@ -1,0 +1,9 @@
+/* CSS for MagicNumberXBlock */
+
+.magic_number_xblock_block .count {
+    font-weight: bold;
+}
+
+.magic_number_xblock_block p {
+    cursor: pointer;
+}
