@@ -1,9 +1,7 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
-import requests
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
 from .utils import get_magic_number, create_or_update_magic_number
 
@@ -12,35 +10,39 @@ class MagicNumberXBlock(XBlock):
     """
     TO-DO: document what your XBlock does.
     """
-    magic_number = Integer(
-        default=0, scope=Scope.user_state, help="Latest number entered.",)
-
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
-    def student_view(self, context=None):
+    def studio_view(self, context):
         """
-        The primary view of the MagicNumberXBlock, shown to students
-        when viewing courses.
+        Create a fragment used to display the edit view in the Studio.
         """
         number = get_magic_number()
-        if isinstance(number, int):
-            self.magic_number = number
-        html = self.resource_string("static/html/magic_number_xblock.html")
-        frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/magic_number_xblock.css"))
-        frag.add_javascript(self.resource_string("static/js/src/magic_number_xblock.js"))
-        frag.initialize_js('MagicNumberXBlock')
+        number = '' if number is None else number
+        html_str = self.resource_string("static/html/studio_view.html")
+        frag = Fragment(unicode(html_str).format(number=number))
+        js_str = self.resource_string("static/js/src/studio.js")
+        frag.add_javascript(unicode(js_str))
+        frag.initialize_js('MagicNumberEditXBlock')
         return frag
 
     @XBlock.json_handler
-    def save_magic_number(self, data, suffix=''):
+    def studio_submit(self, data, suffix=''):
+        """
+        Called when submitting the form in Studio.
+        """
+        number = create_or_update_magic_number(data)
+        return {'number': number}
+
+    def student_view(self, context=None):
         number = get_magic_number()
-        number = create_or_update_magic_number(number)
-        self.magic_number = number
-        return {"magic_number": number}
+        number = '' if number is None else number
+        html = self.resource_string("static/html/magic_number_xblock.html")
+        frag = Fragment(html.format(number=number))
+        frag.add_css(self.resource_string("static/css/magic_number_xblock.css"))
+        return frag
 
     @staticmethod
     def workbench_scenarios():
