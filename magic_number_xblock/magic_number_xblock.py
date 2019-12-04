@@ -1,8 +1,11 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
+import requests
 from xblock.core import XBlock
+from xblock.fields import Integer, Scope
 from xblock.fragment import Fragment
+from xblockutils.resources import ResourceLoader
 from .utils import get_magic_number, create_or_update_magic_number
 
 
@@ -33,15 +36,20 @@ class MagicNumberXBlock(XBlock):
         """
         Called when submitting the form in Studio.
         """
-        number = create_or_update_magic_number(data)
+        number = data.get('number')
+        number = create_or_update_magic_number(int(number))
         return {'number': number}
 
     def student_view(self, context=None):
+        loader = ResourceLoader('magic_number_xblock')
         number = get_magic_number()
-        number = '' if number is None else number
-        html = self.resource_string("static/html/magic_number_xblock.html")
-        frag = Fragment(html.format(number=number))
-        frag.add_css(self.resource_string("static/css/magic_number_xblock.css"))
+        context = {"number": number}
+        template = loader.render_django_template(
+            "static/html/author_view.html", context=context)
+        frag = Fragment(template)
+        frag.add_css(self.resource_string("static/css/author.css"))
+        js_str = self.resource_string("static/js/src/author.js")
+        frag.add_javascript(unicode(js_str))
         return frag
 
     @staticmethod

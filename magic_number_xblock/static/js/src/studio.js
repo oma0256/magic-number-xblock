@@ -17,4 +17,7 @@ function MagicNumberEditXBlock(runtime, element) {
     $(element).find('.cancel-button').bind('click', function() {
       runtime.notify('cancel', {});
     });
+    $(function ($) {
+        $('.modal-window-title', element).text('Editing: Magic Number');
+    });
 }

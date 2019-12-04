@@ -1,10 +1,6 @@
 import requests
 from requests.auth import HTTPBasicAuth
-
-AUTH_URL = "http://192.168.10.100:8000/o/token/"
-MAGIC_NUMBER_URL = "http://192.168.10.100:8000/number/"
-CLIENT_ID = "lxQnZzvhD9o6Y6rBCij2J0ozVAVqcnWlSsRoYISg"
-CLIENT_SECRET = "2y8ggWb6DHv3OY9lAQJUef3HZazzbLwMiJXjEdt8mX1IZaTKVcS4vMnzXnPe1CwwphacNfMBPyhoXwyVxvsKoRjhVXhvltN4RIxZmveXsvZe464IVScF4Gm1qSJXioBM"  # noqa
+from .config import AUTH_URL, CLIENT_ID, CLIENT_SECRET, MAGIC_NUMBER_URL
 
 
 def get_headers():
@@ -24,8 +20,9 @@ def get_magic_number():
     return number
 
 
-def create_or_update_magic_number(data):
+def create_or_update_magic_number(number):
     headers = get_headers()
+    data = {'number': number}
     db_number = get_magic_number()
     if db_number:
         response = requests.put(MAGIC_NUMBER_URL, headers=headers, data=data)
